@@ -1,0 +1,20 @@
+/* css/base.css */
+* {
+  box-sizing: border-box;
+  user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+  background: linear-gradient(145deg, #1a3c2a 0%, #2a5a3a 100%);
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px;
+  overflow: hidden; /* Enforce no page-level scrollbars on PC */
+}

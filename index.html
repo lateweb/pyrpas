@@ -1,0 +1,63 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta http-equiv="Content-Security-Policy" content="img-src 'self' data: https://deckofcardsapi.com;">
+  <title>Pyramidipasianssi</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div id="app">
+    <header>
+      <button id="settings-btn" title="Asetukset">⚙</button>
+      <h1>Pyramidipasianssi</h1>
+      <button id="new-game-btn" title="Uusi peli">⟳</button>
+    </header>
+
+    <main>
+      <section id="pyramid-container">
+        <div id="pyramid"></div>
+      </section>
+
+      <section id="stock-area">
+        <div id="draw-group">
+          <div id="stock-pile" class="pile" title="Nosta kortti">
+            <img src="https://deckofcardsapi.com/static/img/back.png" alt="takapuoli" class="card-back" />
+          </div>
+          <div id="waste-pile" class="pile empty" title="Nykyinen kortti">
+            <span class="pile-label">Käsi</span>
+          </div>
+        </div>
+        <div id="trash-pile" class="pile empty" title="Poistetut kortit">
+          <span class="pile-label">Roskat</span>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Asetukset (Settings) Modal -->
+  <div id="settings-overlay" class="hidden">
+    <div class="settings-modal">
+      <h2>Asetukset</h2>
+      <div class="setting-row">
+        <label for="toggle-click-both">Klikkaa molempia kortteja</label>
+        <input type="checkbox" id="toggle-click-both">
+      </div>
+      <button id="close-settings-btn">Sulje</button>
+    </div>
+  </div>
+
+  <script src="js/constants.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/deck.js"></script>
+  <script src="js/dom-utils.js"></script>
+  <script src="js/geometry.js"></script>
+  <script src="js/position.js"></script>
+  <script src="js/stock.js"></script>
+  <script src="js/moves.js"></script>
+  <script src="js/selection.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

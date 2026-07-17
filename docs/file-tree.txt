@@ -1,0 +1,21 @@
+# docs/file-tree.txt
+pyramidipasianssi/
+├── index.html
+├── css/
+│   ├── base.css
+│   ├── components.css
+│   ├── layout.css
+│   └── styles.css
+├── js/
+│   ├── app.js
+│   ├── constants.js
+│   ├── deck.js
+│   ├── dom-utils.js
+│   ├── geometry.js
+│   ├── moves.js
+│   ├── position.js
+│   ├── selection.js
+│   ├── state.js
+│   └── stock.js
+└── docs/
+    └── file-tree.txt
