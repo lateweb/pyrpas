@@ -3,17 +3,14 @@
   'use strict';
 
   window.game.hasAvailableMoves = function() {
-    // Jos pakassa on nostamattomia kortteja, peli ei ole vielä menetetty
     if (window.game.stockIndex < window.game.stock.length) return true;
 
     const exposed = window.game.getExposed();
 
-    // Tarkistetaan löytyykö avoimista kortista YKSITTÄISTÄ kuningasta (13)
     for (let i of exposed) {
       if (window.game.pyramid[i].rank === 13) return true;
     }
 
-    // Tarkistetaan voiko kaksi avointa pyramidikorttia muodostaa parin
     for (let a = 0; a < exposed.length; a++) {
       for (let b = a + 1; b < exposed.length; b++) {
         if (window.game.pyramid[exposed[a]].rank + window.game.pyramid[exposed[b]].rank === 13) {
@@ -22,14 +19,12 @@
       }
     }
 
-    // Tarkistetaan voiko kädessä oleva kortti pariutua pyramidin kanssa
     if (window.game.waste) {
        for (let i of exposed) {
          if (window.game.waste.rank + window.game.pyramid[i].rank === 13) return true;
        }
     }
 
-    // Yhtäkään sääntöjenmukaista siirtoa ei ole enää mahdollista tehdä
     return false;
   };
 
@@ -145,7 +140,7 @@
     p.removed = true;
     window.game.updateExposureAndFlip();
 
-    wasteEl.innerHTML = '<span class="pile-label">Käsi</span>';
+    wasteEl.innerHTML = '';
     wasteEl.classList.add('empty');
     window.game.waste = null;
 
