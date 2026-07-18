@@ -14,12 +14,15 @@
     deckStack.innerHTML = '';
     if (remaining === 0) return;
 
-    const maxVisibleOffset = 5;      // how many cards get a visible offset
-    const offsetStep = 2;            // pixels per card
+    const maxVisibleOffset = 5;      
+    const offsetStep = 2;            
 
-    for (let i = 0; i < remaining; i++) {
+    // Käännettiin silmukan järjestys, jotta pakan päällimmäinen kortti 
+    // lisätään DOM:iin viimeisenä, se saa suurimman z-indeksin, eikä 
+    // omista siirtymää (offsetia). Alimmat kortit siirretään hieman alas ja oikealle.
+    for (let i = remaining - 1; i >= 0; i--) {
       const offset = Math.min(i, maxVisibleOffset) * offsetStep;
-      // create a dummy card object just for the back face
+      
       const dummy = { rank: 0, suit: '', code: 'deck', front: '', back: BACK_IMG };
       const wrapper = window.game.createCardElement(dummy, false);
       wrapper.classList.add('deck-card');
@@ -32,12 +35,11 @@
       deckStack.appendChild(wrapper);
     }
 
-    // mark the top card (last element in DOM, highest z-index)
+    // Merkitään pakan ylin kortti, joka on nyt DOM:n viimeinen lapsielementti.
     const topCard = deckStack.lastElementChild;
     if (topCard) topCard.classList.add('deck-top');
   }
 
-  // Expose so that app.js can call it after setting up the stock
   window.game.initDeckUI = function() {
     renderDeck();
   };
@@ -64,7 +66,7 @@
     const rectW = wasteWrapper ? wasteWrapper.getBoundingClientRect() : wastePileEl.getBoundingClientRect();
     const trashRect = document.getElementById('trash-pile').getBoundingClientRect();
 
-    wastePileEl.innerHTML = '<span class="pile-label">Käsi</span>';
+    wastePileEl.innerHTML = '';
     wastePileEl.classList.add('empty');
     window.game.waste = null;
 
@@ -91,7 +93,6 @@
     window.game.isAnimating = true;
     window.game.clearAllHighlights();
 
-    // 1. Animate out the top deck card
     const topCard = deckStack.querySelector('.deck-top');
     if (topCard) {
       topCard.classList.add('deck-card-removing');
@@ -101,16 +102,14 @@
           resolve();
         };
         topCard.addEventListener('transitionend', onEnd);
-        setTimeout(resolve, 300); // safety net
+        setTimeout(resolve, 300);
       });
     }
 
-    // 2. Move current waste to trash (if any)
     if (window.game.waste) {
       await window.game.moveWasteToTrash();
     }
 
-    // 3. Take the next card from stock
     const card = window.game.stock[window.game.stockIndex++];
     window.game.waste = card;
     window.game.updateWaste();
@@ -127,14 +126,12 @@
       wasteWrapper.style.opacity = '1';
     }
 
-    // 4. Refresh the deck stack to reflect the new remaining count
     renderDeck();
 
     if (window.game.stockIndex >= window.game.stock.length) {
       stockPileEl.classList.add('disabled');
     }
 
-    // Kings are no longer automatically discarded – they stay in waste like any other card.
     window.game.isAnimating = false;
     window.game.postMoveCheck();
   };
