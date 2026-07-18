@@ -42,11 +42,8 @@
       }
     }
 
-    if (window.game.pyramid[idx].rank === 13) {
-      window.game.removeKing(idx);
-      return;
-    }
-
+    // Kings are no longer automatically discarded – they behave like any other card.
+    // (The previous automatic king‑removal block has been removed.)
     const target = 13 - window.game.pyramid[idx].rank;
     const exposed = window.game.getExposed();
     const matches = exposed.filter(i => i !== idx && window.game.pyramid[i].rank === target);
