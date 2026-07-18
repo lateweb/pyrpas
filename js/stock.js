@@ -4,12 +4,51 @@
 
   const stockPileEl = document.getElementById('stock-pile');
   const wastePileEl = document.getElementById('waste-pile');
+  const deckStack = stockPileEl.querySelector('.deck-stack');
 
+  // ---------------------------------------------------------------
+  //  Deck visualisation
+  // ---------------------------------------------------------------
+  function renderDeck() {
+    const remaining = window.game.stock.length - window.game.stockIndex;
+    deckStack.innerHTML = '';
+    if (remaining === 0) return;
+
+    const maxVisibleOffset = 5;      // how many cards get a visible offset
+    const offsetStep = 2;            // pixels per card
+
+    for (let i = 0; i < remaining; i++) {
+      const offset = Math.min(i, maxVisibleOffset) * offsetStep;
+      // create a dummy card object just for the back face
+      const dummy = { rank: 0, suit: '', code: 'deck', front: '', back: BACK_IMG };
+      const wrapper = window.game.createCardElement(dummy, false);
+      wrapper.classList.add('deck-card');
+      wrapper.style.position = 'absolute';
+      wrapper.style.width = '100%';
+      wrapper.style.height = '100%';
+      wrapper.style.zIndex = remaining - i;
+      wrapper.style.transform = `translate(${offset}px, ${offset}px)`;
+      wrapper.style.transition = 'transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.25s';
+      deckStack.appendChild(wrapper);
+    }
+
+    // mark the top card (last element in DOM, highest z-index)
+    const topCard = deckStack.lastElementChild;
+    if (topCard) topCard.classList.add('deck-top');
+  }
+
+  // Expose so that app.js can call it after setting up the stock
+  window.game.initDeckUI = function() {
+    renderDeck();
+  };
+
+  // ---------------------------------------------------------------
+  //  Waste management
+  // ---------------------------------------------------------------
   window.game.updateWaste = function() {
     wastePileEl.querySelectorAll('.card-wrapper').forEach(e => e.remove());
     if (window.game.waste) {
       wastePileEl.classList.remove('empty');
-      
       const wrapper = window.game.createCardElement(window.game.waste, true);
       wastePileEl.appendChild(wrapper);
     } else {
@@ -20,7 +59,7 @@
   window.game.moveWasteToTrash = async function() {
     if (!window.game.waste) return;
     const wCard = window.game.waste;
-    
+
     const wasteWrapper = wastePileEl.querySelector('.card-wrapper');
     const rectW = wasteWrapper ? wasteWrapper.getBoundingClientRect() : wastePileEl.getBoundingClientRect();
     const trashRect = document.getElementById('trash-pile').getBoundingClientRect();
@@ -32,11 +71,14 @@
     const tx = (Math.random() - 0.5) * 12;
     const ty = (Math.random() - 0.5) * 12;
     const r = (Math.random() - 0.5) * 45;
-    
+
     await window.game.flyCard(rectW, trashRect, wCard, { targetX: tx, targetY: ty, targetRotation: r });
     window.game.addCardToTrashDOM(wCard, r, tx, ty);
   };
 
+  // ---------------------------------------------------------------
+  //  Draw card (with animated deck stack)
+  // ---------------------------------------------------------------
   window.game.drawCard = async function() {
     if (window.game.gameOver || window.game.isAnimating) return;
 
@@ -49,44 +91,57 @@
     window.game.isAnimating = true;
     window.game.clearAllHighlights();
 
+    // 1. Animate out the top deck card
+    const topCard = deckStack.querySelector('.deck-top');
+    if (topCard) {
+      topCard.classList.add('deck-card-removing');
+      await new Promise(resolve => {
+        const onEnd = () => {
+          topCard.removeEventListener('transitionend', onEnd);
+          resolve();
+        };
+        topCard.addEventListener('transitionend', onEnd);
+        setTimeout(resolve, 300); // safety net
+      });
+    }
+
+    // 2. Move current waste to trash (if any)
     if (window.game.waste) {
       await window.game.moveWasteToTrash();
     }
 
+    // 3. Take the next card from stock
     const card = window.game.stock[window.game.stockIndex++];
-    
-    const stockBackImg = stockPileEl.querySelector('.card-back');
-    const sourceRect = (stockBackImg || stockPileEl).getBoundingClientRect();
-    
     window.game.waste = card;
     window.game.updateWaste();
-    
-    const newWasteWrapper = wastePileEl.querySelector('.card-wrapper');
-    if (newWasteWrapper) newWasteWrapper.style.opacity = '0';
-    
-    const targetRect = (newWasteWrapper || wastePileEl).getBoundingClientRect();
 
+    const wasteWrapper = wastePileEl.querySelector('.card-wrapper');
+    if (wasteWrapper) wasteWrapper.style.opacity = '0';
+
+    const sourceRect = stockPileEl.getBoundingClientRect();
+    const targetRect = (wasteWrapper || wastePileEl).getBoundingClientRect();
     await window.game.flyCard(sourceRect, targetRect, card, { flip: true, duration: 0.3 });
 
-    if (newWasteWrapper) {
-      newWasteWrapper.style.transition = 'none'; 
-      newWasteWrapper.style.opacity = '1';
+    if (wasteWrapper) {
+      wasteWrapper.style.transition = 'none';
+      wasteWrapper.style.opacity = '1';
     }
+
+    // 4. Refresh the deck stack to reflect the new remaining count
+    renderDeck();
 
     if (window.game.stockIndex >= window.game.stock.length) {
       stockPileEl.classList.add('disabled');
     }
 
-    if (card.rank === 13) {
-      if (newWasteWrapper) newWasteWrapper.classList.add('shake');
-      await new Promise(r => setTimeout(r, 650));
-      await window.game.moveWasteToTrash();
-    }
-
+    // Kings are no longer automatically discarded – they stay in waste like any other card.
     window.game.isAnimating = false;
     window.game.postMoveCheck();
   };
 
+  // ---------------------------------------------------------------
+  //  Discard waste (manual)
+  // ---------------------------------------------------------------
   window.game.discardWaste = function() {
     if (window.game.gameOver || window.game.isAnimating || !window.game.waste) return;
 
