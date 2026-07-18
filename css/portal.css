@@ -1,0 +1,72 @@
+/* css/portal.css */
+#portal-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  color: #efe6d3;
+  width: 100%;
+  max-width: 800px;
+}
+
+#portal-container h1 {
+  font-size: 2.5rem;
+  margin-bottom: 8px;
+  color: #ffd966;
+  text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  margin-bottom: 40px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.game-cards {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+.portal-card {
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 32px 24px;
+  width: 280px;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.portal-card:hover {
+  transform: translateY(-8px);
+  background: rgba(0, 0, 0, 0.5);
+  border-color: #ffd966;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+}
+
+.portal-icon {
+  font-size: 4rem;
+  margin-bottom: 16px;
+}
+
+.portal-card h2 {
+  font-size: 1.4rem;
+  margin-bottom: 12px;
+  color: #6cf;
+}
+
+.portal-card p {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
+}
